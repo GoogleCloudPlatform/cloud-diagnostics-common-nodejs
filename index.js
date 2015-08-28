@@ -17,6 +17,6 @@
  'use strict';
 
 module.exports = {
-  logger: require('lib/logger.js'),
-  utils: require('lib/utils.js')
+  logger: require('./lib/logger.js'),
+  utils: require('./lib/utils.js')
 };
