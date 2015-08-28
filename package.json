@@ -1,0 +1,35 @@
+{
+  "name": "@google/cloud-diagnostics-common",
+  "version": "0.1.0",
+  "description": "Common utilities for Google Cloud Diagnostics",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "keywords": [
+    "google",
+    "tracing",
+    "profiling"
+  ],
+  "author": "Google Inc.",
+  "contributors": [
+    {
+      "name": "Ali Ijaz Sheikh",
+      "email": "ofrobots@google.com"
+    },
+    {
+      "name": "Matt Loring",
+      "email": "mattloring@google.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "jshint": "^2.8.0",
+    "mocha": "^2.2.5",
+    "nock": "^2.10.0"
+  },
+  "dependencies": {
+    "google-auth-library": "^0.9.6",
+    "request": "^2.61.0"
+  }
+}
