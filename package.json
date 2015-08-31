@@ -1,6 +1,6 @@
 {
   "name": "@google/cloud-diagnostics-common",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Common utilities for Google Cloud Diagnostics",
   "main": "index.js",
   "scripts": {
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "google-auth-library": "^0.9.6",
+    "moment": "^2.10.6",
     "request": "^2.61.0"
   }
 }
