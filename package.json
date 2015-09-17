@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Common utilities for Google Cloud Diagnostics",
   "main": "index.js",
+  "repository": "GoogleCloudPlatform/cloud-diagnostics-common-nodejs",
   "scripts": {
     "test": "mocha test"
   },
