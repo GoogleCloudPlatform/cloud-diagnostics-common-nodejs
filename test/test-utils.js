@@ -67,6 +67,31 @@ describe('utils', function() {
 
   });
 
+  describe('getApplicationDefaultAuth', function() {
+    it('should work with empty scopes', function(done) {
+      utils.getApplicationDefaultAuth([], function(err, client) {
+        assert(!err);
+        assert(client);
+        done();
+      });
+    });
+
+    it('should work with out of order scopes', function(done) {
+      var scopes1 = ['https://www.googleapis.com/auth/trace.append',
+                     'https://www.googleapis.com/auth/trace.readonly'];
+      var scopes2 = ['https://www.googleapis.com/auth/trace.readonly',
+                     'https://www.googleapis.com/auth/trace.append'];
+      utils.getApplicationDefaultAuth(scopes1, function(err, client1) {
+        assert(!err);
+        utils.getApplicationDefaultAuth(scopes2, function(err, client2) {
+          assert(!err);
+          assert.equal(client1, client2);
+          done();
+        });
+      });
+    });
+  });
+
   describe('requestWithRetry', function() {
 
     it('should not retry on successful request', function(done) {
