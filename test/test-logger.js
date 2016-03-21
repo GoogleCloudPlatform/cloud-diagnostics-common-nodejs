@@ -37,7 +37,7 @@ describe('logger', function() {
   });
 
   it('should generate log messages successfully', function() {
-    var l = logger.create(logger.DEBUG, 'foobar');
+    var l = logger.create(logger.SILLY, 'foobar');
     l.error('a');
     assert.ok(/ERROR.*: a/.test(buffer.pop()));
     l.warn('b', 'c');
@@ -46,6 +46,8 @@ describe('logger', function() {
     assert.ok(/INFO.*: d e f/.test(buffer.pop()));
     l.debug('g');
     assert.ok(/DEBUG.*: g/.test(buffer.pop()));
+    l.silly('g');
+    assert.ok(/SILLY.*: g/.test(buffer.pop()));
   });
 
   it('should not log when the default level is lower', function() {
