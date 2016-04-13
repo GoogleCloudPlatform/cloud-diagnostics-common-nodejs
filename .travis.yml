@@ -5,4 +5,4 @@ node_js:
   - "iojs"
 
 env:
-  - GCLOUD_PROJECT_NUM=0
+  - GCLOUD_PROJECT=0
