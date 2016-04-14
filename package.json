@@ -27,7 +27,8 @@
   "devDependencies": {
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
-    "nock": "^2.10.0"
+    "nock": "^2.10.0",
+    "proxyquire": "^1.7.4"
   },
   "dependencies": {
     "google-auth-library": "^0.9.6",

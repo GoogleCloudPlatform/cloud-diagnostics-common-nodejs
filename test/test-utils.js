@@ -17,8 +17,16 @@
 
 var nock = require('nock');
 var assert = require('assert');
+var proxyquire = require('proxyquire');
 
-var utils = require('../lib/utils.js');
+function GoogleAuth() {}
+GoogleAuth.prototype.getApplicationDefault = function(cb) {
+  return cb(null, 'Awesome Auth Client');
+};
+
+var utils = proxyquire('../lib/utils.js', {
+  'google-auth-library': GoogleAuth
+});
 
 nock.disableNetConnect();
 
