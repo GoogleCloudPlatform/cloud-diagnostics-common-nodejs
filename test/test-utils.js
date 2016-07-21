@@ -49,6 +49,21 @@ describe('utils', function() {
           done();
         });
       });
+    
+    it('should be able to handle 500\'s from the metadata service',
+      function(done) {
+        var scope = nock('http://metadata.google.internal')
+                      .get('/computeMetadata/v1/project/numeric-project-id')
+                      .reply(500, {error: true});
+        utils.getProjectNumber(function(err, project) {
+          assert.strictEqual(typeof err, 'object');
+          assert.ok(err instanceof Error);
+          assert.strictEqual(err.message, 'Error discovering project num');
+          assert.strictEqual(project, undefined);
+          scope.done();
+          done();
+        });
+      });
 
     it('should accept an optional headers parameter', function(done) {
       var scope =
