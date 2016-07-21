@@ -66,6 +66,52 @@ describe('utils', function() {
     });
   });
 
+  describe('getProjectId', function() {
+
+    it('should be able to get project id from metadata service',
+      function(done) {
+        var scope = nock('http://metadata.google.internal')
+                      .get('/computeMetadata/v1/project/project-id')
+                      .reply(200, 'a-stub-project-id');
+        utils.getProjectId(function(err, projectId) {
+          assert.ok(!err);
+          assert.strictEqual(projectId, 'a-stub-project-id');
+          scope.done();
+          done();
+        });
+      });
+    
+    it('should be able handle 500\'s from the service',
+      function(done) {
+        var scope = nock('http://metadata.google.internal')
+                      .get('/computeMetadata/v1/project/project-id')
+                      .reply(500, {error: true});
+        utils.getProjectId(function(err, projectId) {
+          assert.strictEqual(typeof err, 'object');
+          assert.ok(err instanceof Error);
+          assert.strictEqual(err.message, 'Error discovering project id');
+          assert.strictEqual(projectId, null);
+          scope.done();
+          done();
+        });
+      });
+
+    it('should accept an optional headers parameter', function(done) {
+      var scope =
+        nock('http://metadata.google.internal', {
+            reqheaders: {'Flux': 'Capacitor'}
+          })
+          .get('/computeMetadata/v1/project/project-id')
+          .reply(200, 'a-stub-project-id');
+      utils.getProjectId({'Flux': 'Capacitor'}, function(err, project) {
+        assert.ok(!err);
+        assert.strictEqual(project, 'a-stub-project-id');
+        scope.done();
+        done();
+      });
+    });
+  });
+
   describe('authorizedRequestFactory', function() {
 
     it('should return a function', function() {
