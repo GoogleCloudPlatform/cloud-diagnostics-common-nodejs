@@ -8,3 +8,6 @@ node_js:
 
 env:
   - GCLOUD_PROJECT=0
+
+script:
+  - npm run-script coveralls

@@ -1,5 +1,7 @@
 # Google Cloud Diagnostics Common
 
+[![Coverage Status](https://coveralls.io/repos/github/GoogleCloudPlatform/cloud-diagnostics-common-nodejs/badge.svg?branch=master)](https://coveralls.io/github/GoogleCloudPlatform/cloud-diagnostics-common-nodejs?branch=master)
+
 This module implements utility and logging functionality used by the cloud
 Tracing and Debugging agents for Node.js. This module is
 under development and is not suitable for production
