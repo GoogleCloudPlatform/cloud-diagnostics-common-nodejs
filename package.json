@@ -1,6 +1,6 @@
 {
   "name": "@google/cloud-diagnostics-common",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Common utilities for Google Cloud Diagnostics",
   "main": "index.js",
   "repository": "GoogleCloudPlatform/cloud-diagnostics-common-nodejs",
