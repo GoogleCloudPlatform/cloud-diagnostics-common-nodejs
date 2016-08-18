@@ -6,6 +6,7 @@
   "repository": "GoogleCloudPlatform/cloud-diagnostics-common-nodejs",
   "scripts": {
     "test": "mocha test",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha test",
     "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "keywords": [
@@ -31,6 +32,7 @@
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
     "mocha-lcov-reporter": "^1.2.0",
+    "mock-fs": "^3.11.0",
     "nock": "^2.10.0",
     "proxyquire": "^1.7.4"
   },

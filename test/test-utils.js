@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 'use strict';
-
+var proxyquire = require('proxyquire').noPreserveCache();
 var nock = require('nock');
 var assert = require('assert');
-var proxyquire = require('proxyquire');
+
 
 function GoogleAuth() {}
-GoogleAuth.prototype.getApplicationDefault = function(cb) {
+  GoogleAuth.prototype.getApplicationDefault = function(cb) {
   return cb(null, 'Awesome Auth Client');
 };
-
 var utils = proxyquire('../lib/utils.js', {
   'google-auth-library': GoogleAuth
 });
@@ -79,6 +78,22 @@ describe('utils', function() {
         done();
       });
     });
+
+    it('Should callback with ENOTFOUND', function (done) {
+      var oldEnv = process.env.GCLOUD_PROJECT;
+      process.env.GCLOUD_PROJECT = './this-should-not-exist.json';
+      var scope = nock('http://metadata.google.internal')
+        .get('/computeMetadata/v1/project/numeric-project-id')
+        .once()
+        .replyWithError({'message': 'Not Found', code: 'ENOTFOUND'});
+      utils.getProjectNumber(function (e, result) {
+        assert.ok(e instanceof Error, 'e should be an instance of Error');
+        assert.deepEqual(result, null);
+        process.env.GCLOUD_PROJECT = oldEnv;
+        scope.done();
+        done();
+      });
+    });
   });
 
   describe('getProjectId', function() {
@@ -125,15 +140,29 @@ describe('utils', function() {
         done();
       });
     });
+
+    it('Should callback with ENOTFOUND', function (done) {
+      var oldEnv = process.env.GCLOUD_PROJECT;
+      process.env.GCLOUD_PROJECT = './this-should-not-exist.json';
+      var scope = nock('http://metadata.google.internal')
+        .get('/computeMetadata/v1/project/project-id')
+        .once()
+        .replyWithError({'message': 'Not Found', code: 'ENOTFOUND'});
+      utils.getProjectId(function (e, result) {
+        assert.ok(e instanceof Error, 'e should be an instance of Error');
+        assert.deepEqual(result, null);
+        process.env.GCLOUD_PROJECT = oldEnv;
+        scope.done();
+        done();
+      });
+    });
   });
 
   describe('authorizedRequestFactory', function() {
-
     it('should return a function', function() {
       var result = utils.authorizedRequestFactory(['fake-scope']);
       assert(typeof result === 'function');
     });
-
   });
 
   describe('getApplicationDefaultAuth', function() {
@@ -234,5 +263,77 @@ describe('utils', function() {
         done();
       });
     });
+  });
+
+  describe('getInstanceId - valid cases', function() {
+    var STUB_ID = 'a-stub-instance-id';
+    it(
+      'Should be able to get the instance id without additional headers supplied',
+      function (done) {
+        var mock = nock('http://metadata.google.internal/computeMetadata/v1')
+          .get('/instance/id')
+          .once()
+          .reply(200, STUB_ID);
+        utils.getInstanceId(function (err, id) {
+          assert.deepEqual(err, null, 'Error should be null');
+          assert.deepEqual(STUB_ID, id, 'The id should be the stub id');
+          mock.done();
+          done();
+        });
+      }
+    );
+    it(
+      'Should be able to get the instance id with additional headers supplied',
+      function (done) {
+        var mock = nock('http://metadata.google.internal/computeMetadata/v1',
+          {reqHeaders: {'x-custom-header': 'true'}})
+          .get('/instance/id')
+          .once()
+          .reply(200, STUB_ID);
+        utils.getInstanceId({'x-custom-header': 'true'}, function (err, id) {
+          assert.deepEqual(err, null, 'Error should be null');
+          assert.deepEqual(STUB_ID, id, 'The id should be the stub id');
+          mock.done();
+          done();
+        });
+      }
+    );
+  });
+
+  describe('getHostname - valid cases', function() {
+    var STUB_HOSTNAME = 'a-stub-hostname';
+    it(
+      'Should be able to get the hostname without additional headers supplied',
+      function (done) {
+        var mock = nock('http://metadata.google.internal/computeMetadata/v1')
+          .get('/instance/hostname')
+          .once()
+          .reply(200, STUB_HOSTNAME);
+        utils.getHostname(function (err, id) {
+          assert.deepEqual(err, null, 'Error should be null');
+          assert.deepEqual(STUB_HOSTNAME, id,
+            'The hostname should be the stub hostname');
+          mock.done();
+          done();
+        });
+      }
+    );
+    it(
+      'Should be able to get the hostname with additional headers supplied',
+      function (done) {
+        var mock = nock('http://metadata.google.internal/computeMetadata/v1',
+          {reqHeaders: {'x-custom-header': 'true'}})
+          .get('/instance/hostname')
+          .once()
+          .reply(200, STUB_HOSTNAME);
+        utils.getHostname({'x-custom-header': 'true'}, function (err, id) {
+          assert.deepEqual(err, null, 'Error should be null');
+          assert.deepEqual(STUB_HOSTNAME, id,
+            'The hostname should be the stub hostname');
+          mock.done();
+          done();
+        });
+      }
+    );
   });
 });
