@@ -37,7 +37,7 @@
     "proxyquire": "^1.7.4"
   },
   "dependencies": {
-    "google-auth-library": "^0.9.8",
+    "google-auth-library": "git://github.com/google/google-auth-library-nodejs.git#02f587472ecdc2582f8d5fc754996aa6ef9388a0",
     "moment": "^2.15.0",
     "request": "^2.75.0"
   }
