@@ -91,5 +91,26 @@ describe('utils.authorizedRequestFactory', function() {
         }
       );
     });
+    it('should take config input without throwing', function (done) {
+      var utils = require('../lib/utils.js');
+      var config = {
+        key: require('./fixtures/stub_cert.json')
+      };
+      var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform'],
+        config);
+      var mock = nock('http://www.test.com')
+        .get('/test')
+        .once()
+        .reply(200, 'test');
+      req('http://www.test.com/test',
+        function (err, response, body) {
+          assert.deepEqual(err, null, 'error should be null');
+          assert.ok(typeof response === 'object');
+          assert.deepEqual(body, 'test');
+          mock.done();
+          done();
+        }
+      );
+    });
   });
 });

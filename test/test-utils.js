@@ -20,9 +20,14 @@ var assert = require('assert');
 
 
 function GoogleAuth() {}
-  GoogleAuth.prototype.getApplicationDefault = function(cb) {
+GoogleAuth.prototype.getApplicationDefault = function(cb) {
   return cb(null, 'Awesome Auth Client');
 };
+GoogleAuth.prototype.fromJSON = function(json, cb) {
+  return cb(null, json);
+};
+GoogleAuth.JWT = function() {};
+
 var utils = proxyquire('../lib/utils.js', {
   'google-auth-library': GoogleAuth
 });
@@ -165,27 +170,34 @@ describe('utils', function() {
     });
   });
 
-  describe('getApplicationDefaultAuth', function() {
+  describe('getAuthClient', function() {
     it('should work with empty scopes', function(done) {
-      utils.getApplicationDefaultAuth([], function(err, client) {
+      utils.getAuthClient([], function(err, client) {
         assert(!err);
         assert(client);
         done();
       });
     });
-
-    it('should work with out of order scopes', function(done) {
-      var scopes1 = ['https://www.googleapis.com/auth/trace.append',
-                     'https://www.googleapis.com/auth/trace.readonly'];
-      var scopes2 = ['https://www.googleapis.com/auth/trace.readonly',
-                     'https://www.googleapis.com/auth/trace.append'];
-      utils.getApplicationDefaultAuth(scopes1, function(err, client1) {
+    it('should use JSON credentials when provided', function(done) {
+      var config = {
+        credentials: require('./fixtures/stub_cert.json')
+      };
+      utils.getAuthClient([], config, function(err, client) {
         assert(!err);
-        utils.getApplicationDefaultAuth(scopes2, function(err, client2) {
-          assert(!err);
-          assert.equal(client1, client2);
-          done();
-        });
+        assert(client);
+        assert.equal(client, config.credentials);
+        done();
+      });
+    });
+    it('should use a key file when provided', function(done) {
+      var config = {
+        keyFile: './fixtures/stub_cert.json'
+      };
+      utils.getAuthClient([], config, function(err, client) {
+        assert(!err);
+        assert(client);
+        assert.equal(client.keyFile, config.keyFile);
+        done();
       });
     });
   });
