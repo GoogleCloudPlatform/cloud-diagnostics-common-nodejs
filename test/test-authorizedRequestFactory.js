@@ -123,25 +123,57 @@ describe('utils.authorizedRequestFactory', function() {
       );
     });
     it('should take config input containing credential path without throwing', function (done) {
-     var utils = require('../lib/utils.js');
-     var config = {
-       keyFile: validCredentialsPath
-     };
-     var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform'],
-       config);
-     var mock = nock('http://www.test.com')
-       .get('/test')
-       .once()
-       .reply(200, 'test');
-     req('http://www.test.com/test',
-       function (err, response, body) {
-         assert.deepEqual(err, null, 'error should be null');
-         assert.ok(typeof response === 'object');
-         assert.deepEqual(body, 'test');
-         mock.done();
-         done();
-       }
-     );
+      var utils = require('../lib/utils.js');
+      var config = {
+        keyFile: validCredentialsPath
+      };
+      var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform'],
+        config);
+      var mock = nock('http://www.test.com')
+        .get('/test')
+        .once()
+        .reply(200, 'test');
+      req('http://www.test.com/test',
+        function (err, response, body) {
+          assert.deepEqual(err, null, 'error should be null');
+          assert.ok(typeof response === 'object');
+          assert.deepEqual(body, 'test');
+          mock.done();
+          done();
+        }
+      );
+    });
+    it('should not throw repeated requests', function (done) {
+      var utils = require('../lib/utils.js');
+      var config = {
+        keyFile: validCredentialsPath
+      };
+      var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform'],
+        config);
+      nock('http://www.test.com')
+        .persist()
+        .get('/test')
+        .reply(200, 'test');
+      // This test implicitly checks if only one auth client was created
+      // even on repeated requests, because the mock authentication server
+      // will throw an error if it's queried more than once.
+      var numRequests = 5;
+      function request() {
+        req('http://www.test.com/test',
+          function (err, response, body) {
+            assert.deepEqual(err, null, 'error should be null');
+            assert.ok(typeof response === 'object');
+            assert.deepEqual(body, 'test');
+            if (--numRequests == 0) {
+              authMock.done();
+              done();
+            } else {
+              process.nextTick(request);
+            }
+          }
+        );
+      }
+      request();
     });
   });
 });
