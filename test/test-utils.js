@@ -17,7 +17,7 @@
 var proxyquire = require('proxyquire').noPreserveCache();
 var nock = require('nock');
 var assert = require('assert');
-
+var path = require('path');
 
 function GoogleAuth() {}
 GoogleAuth.prototype.getApplicationDefault = function(cb) {
@@ -25,6 +25,15 @@ GoogleAuth.prototype.getApplicationDefault = function(cb) {
 };
 GoogleAuth.prototype.fromJSON = function(json, cb) {
   return cb(null, json);
+};
+GoogleAuth.prototype.fromStream = function(stream, cb) {
+  var contents = '';
+  stream.on('data', function(data) {
+    contents += data;
+  });
+  stream.on('end', function() {
+    return cb(null, JSON.parse(contents));
+  });
 };
 GoogleAuth.JWT = function() {};
 
@@ -171,6 +180,10 @@ describe('utils', function() {
   });
 
   describe('getAuthClient', function() {
+    // require is relative to this file
+    var credentials = require('./fixtures/stub_cert.json');
+    var keyFilePath = path.join('test', 'fixtures', 'stub_cert.json');
+
     it('should work with empty scopes', function(done) {
       utils.getAuthClient([], function(err, client) {
         assert(!err);
@@ -178,28 +191,30 @@ describe('utils', function() {
         done();
       });
     });
-    it('should use JSON credentials when provided', function(done) {
-      var config = {
-        credentials: require('./fixtures/stub_cert.json')
-      };
-      utils.getAuthClient([], config, function(err, client) {
-        assert(!err);
-        assert(client);
-        assert.equal(client, config.credentials);
-        done();
+    it('should call fromJSON when JSON credentials are provided',
+      function(done) {
+        var config = {
+          credentials: credentials
+        };
+        utils.getAuthClient([], config, function(err, client) {
+          assert(!err);
+          assert(client);
+          assert.equal(client, credentials);
+          done();
+        });
       });
-    });
-    it('should use a key file when provided', function(done) {
-      var config = {
-        keyFile: './fixtures/stub_cert.json'
-      };
-      utils.getAuthClient([], config, function(err, client) {
-        assert(!err);
-        assert(client);
-        assert.equal(client.keyFile, config.keyFile);
-        done();
+    it('should call fromStream when JSON credentials path is provided',
+        function(done) {
+        var config = {
+          keyFile: keyFilePath
+        };
+        utils.getAuthClient([], config, function(err, client) {
+          assert(!err);
+          assert(client);
+          assert.deepEqual(client, credentials);
+          done();
+        });
       });
-    });
   });
 
   describe('requestWithRetry', function() {
