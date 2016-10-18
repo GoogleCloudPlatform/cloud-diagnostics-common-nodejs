@@ -18,6 +18,7 @@ var proxyquire = require('proxyquire').noPreserveCache();
 var nock = require('nock');
 var assert = require('assert');
 var path = require('path');
+var shimmer = require('shimmer');
 
 var badCredentialsPath = './not-a-file.json';
 var validCredentialsPath = './test/fixtures/stub_cert.json';
@@ -129,6 +130,36 @@ describe('utils.authorizedRequestFactory', function() {
       };
       var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform'],
         config);
+      var mock = nock('http://www.test.com')
+        .get('/test')
+        .once()
+        .reply(200, 'test');
+      req('http://www.test.com/test',
+        function (err, response, body) {
+          assert.deepEqual(err, null, 'error should be null');
+          assert.ok(typeof response === 'object');
+          assert.deepEqual(body, 'test');
+          mock.done();
+          done();
+        }
+      );
+    });
+    it('should queue requests if the auth client is not ready yet', function (done) {
+      var utils = require('../lib/utils.js');
+      var GoogleAuth = require('google-auth-library');
+      shimmer.wrap(GoogleAuth.prototype, 'fromStream', function(original) {
+        return function() {
+          var cb = arguments[1];
+          assert(typeof(cb) === 'function');
+          arguments[1] = function(err, client) {
+            setTimeout(function() {
+              cb(err, client);
+            }, 1000);
+          };
+          return original.apply(this, arguments);
+        };
+      });
+      var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform']);
       var mock = nock('http://www.test.com')
         .get('/test')
         .once()
