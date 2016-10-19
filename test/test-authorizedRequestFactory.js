@@ -49,13 +49,21 @@ describe('utils.authorizedRequestFactory', function() {
       process.env.GOOGLE_APPLICATION_CREDENTIALS = badCredentialsPath;
       var utils = require('../lib/utils.js');
       var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform']);
-      req({'X-custom-header': 'true', url: 'http://www.test.com/test'}, 
-        function (err, response, body) {
-          assert.ok(err instanceof Error, 'Should be an error');
-          process.env.GOOGLE_APPLICATION_CREDENTIALS = oldEnv;
-          done();
-        }
-      );
+      var numRequests = 5;
+      function request() {
+        req({'X-custom-header': 'true', url: 'http://www.test.com/test'},
+          function (err, response, body) {
+            assert.ok(err instanceof Error, 'Should be an error');
+            if (--numRequests == 0) {
+              process.env.GOOGLE_APPLICATION_CREDENTIALS = oldEnv;
+              done();
+            } else {
+              process.nextTick(request);
+            }
+          }
+        );
+      }
+      request();
     });
     it('should return a function', function() {
       var utils = require('../lib/utils.js');
@@ -149,6 +157,7 @@ describe('utils.authorizedRequestFactory', function() {
       var GoogleAuth = require('google-auth-library');
       shimmer.wrap(GoogleAuth.prototype, 'fromStream', function(original) {
         return function() {
+          // Simulate the key file taking a long time to load into memory.
           var cb = arguments[1];
           assert(typeof(cb) === 'function');
           arguments[1] = function(err, client) {
@@ -174,7 +183,7 @@ describe('utils.authorizedRequestFactory', function() {
         }
       );
     });
-    it('should not throw repeated requests', function (done) {
+    it('should only create one auth client on repeated requests', function (done) {
       var utils = require('../lib/utils.js');
       var config = {
         keyFile: validCredentialsPath
