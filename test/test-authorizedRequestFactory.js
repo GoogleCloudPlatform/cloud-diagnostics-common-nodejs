@@ -152,7 +152,7 @@ describe('utils.authorizedRequestFactory', function() {
         }
       );
     });
-    it('should queue requests if the auth client is not ready yet', function (done) {
+    it('should not throw if the auth client is not ready yet', function (done) {
       var utils = require('../lib/utils.js');
       var GoogleAuth = require('google-auth-library');
       shimmer.wrap(GoogleAuth.prototype, 'fromStream', function(original) {
@@ -168,7 +168,11 @@ describe('utils.authorizedRequestFactory', function() {
           return original.apply(this, arguments);
         };
       });
-      var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform']);
+      var config = {
+        keyFile: validCredentialsPath
+      };
+      var req = utils.authorizedRequestFactory(['https://www.googleapis.com/auth/cloud-platform'],
+        config);
       var mock = nock('http://www.test.com')
         .get('/test')
         .once()
@@ -179,11 +183,12 @@ describe('utils.authorizedRequestFactory', function() {
           assert.ok(typeof response === 'object');
           assert.deepEqual(body, 'test');
           mock.done();
+          shimmer.unwrap(GoogleAuth.prototype, 'fromStream');
           done();
         }
       );
     });
-    it('should only create one auth client on repeated requests', function (done) {
+    it('should not throw on repeated requests', function (done) {
       var utils = require('../lib/utils.js');
       var config = {
         keyFile: validCredentialsPath
@@ -194,9 +199,6 @@ describe('utils.authorizedRequestFactory', function() {
         .persist()
         .get('/test')
         .reply(200, 'test');
-      // This test implicitly checks if only one auth client was created
-      // even on repeated requests, because the mock authentication server
-      // will throw an error if it's queried more than once.
       var numRequests = 5;
       function request() {
         req('http://www.test.com/test',

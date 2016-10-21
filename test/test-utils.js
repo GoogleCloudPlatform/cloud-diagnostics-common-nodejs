@@ -35,7 +35,6 @@ GoogleAuth.prototype.fromStream = function(stream, cb) {
     return cb(null, JSON.parse(contents));
   });
 };
-GoogleAuth.JWT = function() {};
 
 var utils = proxyquire('../lib/utils.js', {
   'google-auth-library': GoogleAuth
