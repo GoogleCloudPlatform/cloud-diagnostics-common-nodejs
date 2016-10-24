@@ -1,5 +1,12 @@
 # Cloud Diagnostics Common ChangeLog
 
+## 2016-10-24, Version 0.3.0 (Experimental), @matthewloring
+
+### Commits
+
+* [[`527d1fc183`](https://github.com/GoogleCloudPlatform/cloud-diagnostics-common-nodejs/commit/527d1fc183)] - Implemented reading key file/credentials config object for auth client (#28) (Kelvin Jin) [#28](https://github.com/GoogleCloudPlatform/cloud-diagnostics-common-nodejs/pull/28)
+* [[`fbe5f860fa`](https://github.com/GoogleCloudPlatform/cloud-diagnostics-common-nodejs/commit/fbe5f860fa)] - Update to released auth library (#29) (Matthew Loring) [#29](https://github.com/GoogleCloudPlatform/cloud-diagnostics-common-nodejs/pull/29)
+
 ## 2016-10-03, Version 0.2.5 (Experimental), @matthewloring
 
 ### Commits
