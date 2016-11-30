@@ -21,9 +21,9 @@ var fsMock = require('mock-fs');
 var proxyquire = require('proxyquire').noPreserveCache();
 var assert = require('assert');
 var PREFIX = 'mock_fd_logger';
-var moment = require('moment');
 var MOCK_FILE = [PREFIX, 'log.txt'].join('_');
 var MOCK_PATH = os.tmpdir()+'/'+MOCK_FILE; // mock-fs always uses forward slashes
+var SECONDS = 1471332553; // Some date value measured in seconds from epoch.
 
 /* Stub console.log for testing */
 var buffer = [];
@@ -84,7 +84,7 @@ describe('logging a breakpoint object', function () {
     var correctOutput = [
       'ERROR:mock_fd_logger: breakpoint id: 0,\n\tlocation: { line: 3, path:',
       ' \'/my/project/root/test/fixtures/a/hello.js\' }\n\tcreatedTime: ',
-      moment.unix(parseInt(1471332053, 10)).calendar(),
+      new Date(SECONDS * 1000).toString(),
       '\n\tcondition: \'if n == 3 then true else false\'\n\texpressions: ',
       '[ \'if n == 3 then Math.PI * n else n\' ]\n'
     ].join('');
@@ -94,7 +94,7 @@ describe('logging a breakpoint object', function () {
         line: 3,
         path: '/my/project/root/test/fixtures/a/hello.js'
       },
-      createdTime: {seconds: 1471332053},
+      createdTime: {seconds: SECONDS},
       condition: 'if n == 3 then true else false',
       expressions: ['if n == 3 then Math.PI * n else n']
     };
@@ -131,7 +131,7 @@ describe('logging a breakpoint object', function () {
         line: 3,
         path: '/my/project/root/test/fixtures/a/hello.js'
       },
-      createdTime: {seconds: 1471332053},
+      createdTime: {seconds: SECONDS},
       expressions: ['if n == 3 then Math.PI * n else n']
     };
     writer = logger.create(logger.SILLY, PREFIX, 10);
@@ -150,7 +150,7 @@ describe('logging a breakpoint object', function () {
         line: 3,
         path: '/my/project/root/test/fixtures/a/hello.js'
       },
-      createdTime: {seconds: 1471332053},
+      createdTime: {seconds: SECONDS},
       condition: 'if n == 3 then true else false'
     };
     writer = logger.create(logger.SILLY, PREFIX, 10);
@@ -169,7 +169,7 @@ describe('logging a breakpoint object', function () {
         line: 3,
         path: '/my/project/root/test/fixtures/a/hello.js'
       },
-      createdTime: {seconds: 1471332053},
+      createdTime: {seconds: SECONDS},
       condition: 'if n == 3 then true else false'
     };
     writer = logger.create(logger.ERROR, PREFIX, 10);
@@ -182,12 +182,12 @@ describe('logging a breakpoint object', function () {
       'ERROR:mock_fd_logger: \nERROR:mock_fd_logger: breakpoint id: 0,',
       '\n\tlocation: { line: 3, path: \'/my/project/root/test/fixtures/',
       'a/hello.js\' }\n\tcreatedTime: ',
-      moment.unix(parseInt(1471332053, 10)).calendar(),
+      new Date(SECONDS*1000).toString(),
       '\n\tcondition: \'',
       'if n == 3 then true else false\'\nERROR:mock_fd_logger: breakpoint ',
       'id: 1,\n\tlocation: { line: 10,\n  path: ',
       '\'/my/project/root/test/fixtures/a/goodbye.js\' }\n\tcreatedTime: ',
-      moment.unix(parseInt(1471332553, 10)).calendar(),
+      new Date(SECONDS*1000).toString(),
       '\n\tcondition: \'if n == 4 then true else false\'\n'
     ].join('');
     var log, writer;
@@ -199,7 +199,7 @@ describe('logging a breakpoint object', function () {
           line: 3,
           path: '/my/project/root/test/fixtures/a/hello.js'
         },
-        createdTime: {seconds: 1471332053},
+        createdTime: {seconds: SECONDS},
         condition: 'if n == 3 then true else false'
       },
       {
@@ -208,7 +208,7 @@ describe('logging a breakpoint object', function () {
           line: 10,
           path: '/my/project/root/test/fixtures/a/goodbye.js'
         },
-        createdTime: {seconds: 1471332553},
+        createdTime: {seconds: SECONDS},
         condition: 'if n == 4 then true else false'
       }
     ];
