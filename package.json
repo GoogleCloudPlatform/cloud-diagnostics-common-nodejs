@@ -6,8 +6,10 @@
   "repository": "GoogleCloudPlatform/cloud-diagnostics-common-nodejs",
   "scripts": {
     "test": "mocha test",
+    "posttest": "npm run license-check",
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha test",
-    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "license-check": "jsgl --local ."
   },
   "keywords": [
     "google",
@@ -29,6 +31,7 @@
   "devDependencies": {
     "coveralls": "^2.11.11",
     "istanbul": "^0.4.4",
+    "js-green-licenses": "^0.2.0",
     "jshint": "^2.8.0",
     "mocha": "^3.0.2",
     "mocha-lcov-reporter": "^1.2.0",
